@@ -1,0 +1,73 @@
+<div id="viewerLayout" class="layout">
+  <aside id="controlPanel" class="panel">
+    <h1>CLE PointCloud Viewer</h1>
+    <p class="help">서버 없이 동작하는 단일 페이지입니다. 아래 파일을 선택하면 포인트 클라우드를 WebGL로 렌더링합니다.</p>
+
+    <section id="groupFiles" class="control-group">
+      <label class="input-block">
+        <span>Point Cloud X (.tif/.tiff)</span>
+        <input id="pcX" type="file" accept=".tif,.tiff" />
+      </label>
+
+      <label class="input-block">
+        <span>Point Cloud Y (.tif/.tiff)</span>
+        <input id="pcY" type="file" accept=".tif,.tiff" />
+      </label>
+
+      <label class="input-block">
+        <span>Point Cloud Z (.tif/.tiff)</span>
+        <input id="pcZ" type="file" accept=".tif,.tiff" />
+      </label>
+
+      <label class="input-block">
+        <span>Texture (.png, optional)</span>
+        <input id="texture" type="file" accept=".png" />
+      </label>
+
+      <label class="input-block">
+        <span>ValidMask (.tif/.tiff/.png, optional)</span>
+        <input id="validMask" type="file" accept=".tif,.tiff,.png,image/png" />
+      </label>
+    </section>
+
+    <section id="groupActions" class="control-group">
+      <div class="button-row">
+        <button id="renderButton" type="button">Render</button>
+        <button id="clearButton" type="button" class="secondary">Clear</button>
+      </div>
+    </section>
+
+    <section id="groupStatus" class="control-group">
+      <p id="status" class="status">파일을 선택한 뒤 Render를 누르세요.</p>
+    </section>
+
+    <section id="groupCamera" class="control-group">
+      <pre id="cameraInfo" class="camera-info">Camera XYZ: -</pre>
+    </section>
+
+    <section id="groupStats" class="control-group">
+      <pre id="stats" class="stats"></pre>
+    </section>
+  </aside>
+  <main class="viewer-wrap">
+    <div id="viewer" tabindex="0">
+      <button
+        id="panelOverlayToggle"
+        type="button"
+        class="panel-overlay-toggle viewer-widget"
+        aria-expanded="false"
+      >패널 열기</button>
+      <section id="measureWidget" class="measure-panel viewer-widget">
+        <button id="measureWidgetToggle" type="button" class="measure-toggle" aria-expanded="false">측정 패널 열기</button>
+        <div id="measureWidgetBody" class="measure-widget-body">
+          <p class="measure-help">측정 중: 클릭 1회 A, 2회 B, 3회 새 측정 시작</p>
+          <div class="button-row">
+            <button id="clearMeasureButton" type="button" class="secondary">Clear Measure</button>
+          </div>
+          <pre id="measureInfo" class="measure-info">거리 측정 버튼을 눌러 시작하세요.</pre>
+        </div>
+      </section>
+      <div id="labelLayer" class="label-layer"></div>
+    </div>
+  </main>
+</div>

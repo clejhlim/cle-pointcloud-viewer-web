@@ -1,0 +1,20 @@
+{
+  "name": "cle-pointcloud-viewer",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node esbuild.config.mjs",
+    "watch": "node esbuild.config.mjs --watch",
+    "typecheck": "tsc --project tsconfig.json"
+  },
+  "dependencies": {
+    "geotiff": "^3.0.3",
+    "three": "^0.182.0"
+  },
+  "devDependencies": {
+    "@types/three": "^0.182.0",
+    "esbuild": "^0.27.3",
+    "typescript": "^5.9.3"
+  }
+}
