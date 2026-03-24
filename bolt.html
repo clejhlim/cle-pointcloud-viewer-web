@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CLE PointCloud Viewer - bolt</title>
+  <style>
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+    }
+
+    cle-pointcloud-viewer {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <cle-pointcloud-viewer
+    id="viewer"
+    overlays="measurement axis-widget"
+    rotation-mode="turntable"
+    sampling-step="1"
+    point-size="2"
+    use-texture-color="true"
+    skip-zero="true"
+  ></cle-pointcloud-viewer>
+
+  <script src="./dist/cle-pointcloud-viewer.js"></script>
+  <script>
+    const SAMPLE_BASE = "./data/bolt";
+    const SAMPLE_FILES = {
+      pcX: "binPicking_1_IMG_PointCloud_X.tif",
+      pcY: "binPicking_1_IMG_PointCloud_Y.tif",
+      pcZ: "binPicking_1_IMG_PointCloud_Z.tif",
+      texture: "binPicking_1_IMG_Texture_8Bit.png"
+    };
+
+    const viewer = document.getElementById("viewer");
+
+    async function loadFile(path, filename) {
+      const response = await fetch(path);
+      if (!response.ok) {
+        throw new Error(filename + " 로드 실패 (" + response.status + ")");
+      }
+
+      const blob = await response.blob();
+      return new File([blob], filename, { type: blob.type || "application/octet-stream" });
+    }
+
+    async function loadSampleFiles() {
+      const entries = await Promise.all(
+        Object.entries(SAMPLE_FILES).map(async ([key, filename]) => {
+          const file = await loadFile(SAMPLE_BASE + "/" + filename, filename);
+          return [key, file];
+        })
+      );
+
+      return Object.fromEntries(entries);
+    }
+
+    async function main() {
+      try {
+        const files = await loadSampleFiles();
+        await viewer.renderFromFiles(files);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    void main();
+  </script>
+</body>
+</html>
