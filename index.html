@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CLE PointCloud Viewer</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: "Segoe UI", sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top, rgba(56, 139, 253, 0.18), transparent 28%),
+        linear-gradient(180deg, #0d1117 0%, #111827 100%);
+    }
+
+    .app {
+      width: min(1200px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 24px 0 32px;
+    }
+
+    .header {
+      margin-bottom: 16px;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #7ee787;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 40px);
+      line-height: 1.1;
+    }
+
+    .description {
+      margin: 0;
+      color: #9fb0c3;
+      line-height: 1.5;
+    }
+
+    .status {
+      margin: 18px 0 20px;
+      padding: 12px 14px;
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.72);
+      color: #cdd9e5;
+      font-size: 14px;
+    }
+
+    .status.error {
+      border-color: rgba(248, 113, 113, 0.45);
+      color: #fecaca;
+    }
+
+    cle-pointcloud-viewer {
+      display: block;
+      width: 100%;
+      height: min(78vh, 860px);
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      border-radius: 18px;
+      overflow: hidden;
+      background: rgba(2, 6, 23, 0.85);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="header">
+      <p class="eyebrow">GitHub Pages Demo</p>
+      <h1>CLE PointCloud Viewer</h1>
+      <p class="description">
+        `data/sample1`의 TIFF 포인트 클라우드 샘플을 자동으로 불러옵니다.
+      </p>
+    </header>
+
+    <div id="status" class="status" role="status" aria-live="polite">샘플 데이터를 불러오는 중입니다.</div>
+
+    <cle-pointcloud-viewer
+      id="viewer"
+      overlays="control-panel measurement axis-widget"
+      rotation-mode="turntable"
+      sampling-step="1"
+      point-size="2"
+      use-texture-color="true"
+      skip-zero="true"
+    ></cle-pointcloud-viewer>
+  </main>
+
+  <script src="./dist/cle-pointcloud-viewer.js"></script>
+  <script>
+    const SAMPLE_BASE = "./data/sample1";
+    const SAMPLE_FILES = {
+      pcX: "FRT_01_IMG_PointCloud_X.tif",
+      pcY: "FRT_01_IMG_PointCloud_Y.tif",
+      pcZ: "FRT_01_IMG_PointCloud_Z.tif",
+      texture: "FRT_01_IMG_Texture_8Bit.png"
+    };
+
+    const statusEl = document.getElementById("status");
+    const viewer = document.getElementById("viewer");
+
+    function setStatus(message, isError) {
+      statusEl.textContent = message;
+      statusEl.classList.toggle("error", Boolean(isError));
+    }
+
+    async function loadFile(path, filename) {
+      const response = await fetch(path);
+      if (!response.ok) {
+        throw new Error(filename + " 로드 실패 (" + response.status + ")");
+      }
+
+      const blob = await response.blob();
+      return new File([blob], filename, { type: blob.type || "application/octet-stream" });
+    }
+
+    async function loadSampleFiles() {
+      const entries = await Promise.all(
+        Object.entries(SAMPLE_FILES).map(async ([key, filename]) => {
+          const file = await loadFile(SAMPLE_BASE + "/" + filename, filename);
+          return [key, file];
+        })
+      );
+
+      return Object.fromEntries(entries);
+    }
+
+    async function main() {
+      try {
+        setStatus("샘플 데이터를 다운로드하고 있습니다.");
+        const files = await loadSampleFiles();
+
+        setStatus("포인트 클라우드를 렌더링하는 중입니다.");
+        const renderedCount = await viewer.renderFromFiles(files);
+        setStatus("렌더링 완료: " + renderedCount.toLocaleString() + " points");
+      } catch (error) {
+        console.error(error);
+        const message = error instanceof Error ? error.message : String(error);
+        setStatus("초기화 실패: " + message, true);
+      }
+    }
+
+    void main();
+  </script>
+</body>
+</html>
